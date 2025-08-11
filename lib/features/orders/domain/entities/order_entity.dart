@@ -1,8 +1,6 @@
-import 'order_item_entity.dart';
-
-enum OrderStatus { pending, confirmed, paid, delivered, cancelled }
-
-enum PaymentMethod { cash, card, transfer }
+import 'package:treintaypico/features/orders/domain/entities/order_item_entity.dart';
+import 'package:treintaypico/features/orders/domain/enums/order_status.dart';
+import 'package:treintaypico/features/orders/domain/enums/payments_methods.dart';
 
 class OrderEntity {
   final String id;
@@ -11,6 +9,7 @@ class OrderEntity {
   final String companyId;
   final List<OrderItemEntity> items;
   final int totalAmount;
+  final bool isOrderActive;
   final OrderStatus status;
   final bool isPaid;
   final PaymentMethod? paymentMethod;
@@ -26,6 +25,7 @@ class OrderEntity {
     required this.companyId,
     required this.items,
     required this.totalAmount,
+    required this.isOrderActive,
     required this.status,
     required this.isPaid,
     this.paymentMethod,
