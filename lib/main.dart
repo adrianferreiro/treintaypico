@@ -10,6 +10,7 @@ import 'package:treintaypico/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
 
   // Cargamos SharedPreferences una sola vez
   final sharedPrefs = await SharedPreferences.getInstance();
