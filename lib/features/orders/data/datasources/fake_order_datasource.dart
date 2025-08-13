@@ -10,34 +10,39 @@ class FakeOrderDatasource implements OrderDatasource {
 
     if (id == '404') throw NotFoundException();
 
+    final now = DateTime.now();
+    String two(int n) => n.toString().padLeft(2, '0');
+    final orderNumber = 'ORD-${now.year}${two(now.month)}${two(now.day)}-001';
+
     return OrderModel(
       id: id,
       eventId: 'event_789',
       userId: 'user_123',
       companyId: 'company_456',
-      items: [
+      items: const [
         OrderItemModel(
-          productId: 'product_001',
-          productName: 'Lata Heineken 280ml',
+          categoryId: 'cat_beer',
+          productName: 'Heineken 470',
           quantity: 2,
-          unitPrice: 250,
-          subtotal: 500,
+          unitPrice: 2500,
+          subtotal: 5000,
         ),
         OrderItemModel(
-          productId: 'product_002',
+          categoryId: 'cat_cocktail',
           productName: 'Gin Tonic',
           quantity: 1,
           unitPrice: 6000,
           subtotal: 6000,
         ),
       ],
-      totalAmount: 6500,
-      status: 'pending',
+      totalAmount: 11000,
+      isOrderActive: true,
+      status: 'pending', // mapea a OrderStatus.pending en el mapper
       isPaid: false,
-      paymentMethod: null,
-      orderNumber: 'ORD-20240806-001',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      paymentMethod: null, // o 'cash' | 'card' | 'transfer'
+      orderNumber: orderNumber,
+      createdAt: now,
+      updatedAt: now,
       deliveredAt: null,
     );
   }
