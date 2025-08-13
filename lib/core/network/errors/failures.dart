@@ -23,3 +23,31 @@ final class StorageFailure extends Failure {
 class UnexpectedFailure extends Failure {
   UnexpectedFailure(String message) : super(message: message);
 }
+
+final class BluetoothOffFailure extends Failure {
+  BluetoothOffFailure({super.message = 'Bluetooth apagado'});
+}
+
+final class PermissionDeniedFailure extends Failure {
+  PermissionDeniedFailure({super.message = 'Permiso de Bluetooth denegado'});
+}
+
+final class DeviceNotFoundFailure extends Failure {
+  DeviceNotFoundFailure({super.message = 'Impresora no encontrada'});
+}
+
+final class ConnectionTimeoutFailure extends Failure {
+  ConnectionTimeoutFailure({super.message = 'Tiempo de conexión agotado'});
+}
+
+final class PrintFailure extends Failure {
+  PrintFailure({super.message = 'Error al imprimir'});
+}
+
+final class PaperOutFailure extends Failure {
+  PaperOutFailure({super.message = 'La impresora no tiene papel'});
+}
+
+final class UnsupportedProfileFailure extends Failure {
+  UnsupportedProfileFailure({super.message = 'Perfil ESC/POS no soportado'});
+}
