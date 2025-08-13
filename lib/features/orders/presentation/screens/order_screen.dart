@@ -23,81 +23,98 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
     final controller = ref.read(orderControllerProvider.notifier);
 
     return Scaffold(
+      resizeToAvoidBottomInset:
+          true, // asegura que el body se reduzca con el teclado
       appBar: AppBar(title: const Text('Detalle del Pedido')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Input de ID + botón buscar
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _idController,
-                    decoration: const InputDecoration(
-                      labelText: 'ID del pedido',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    controller.fetchOrderById(_idController.text.trim());
-                  },
-                  child: const Text('Buscar'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Botón escanear QR
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // pendiente: navegación al escáner
-                },
-                icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('Escanear QR'),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                // agrega espacio inferior igual al teclado para evitar solapamiento
+                bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Estado del pedido
-            Expanded(
-              child: switch (state) {
-                OrderInitial() => const Center(
-                  child: Text('Esperando ID o escaneo de código QR...'),
-                ),
-                OrderLoading() => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                OrderError(:final message) => Center(child: Text(message)),
-                OrderLoaded(:final order) => Column(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Detalle visual del pedido
-                    Expanded(child: OrderDetail(order: order)),
-                    const SizedBox(height: 12),
-
-                    // Botones de acción
-                    OrderActions(
-                      onCancel: () {
-                        controller.cancelOrder(order.id);
-                      },
-                      onMarkAsPaid: () {
-                        // Podés reemplazar 'cash' por otro método si usás un selector.
-                        controller.markAsPaid(
-                          orderId: order.id,
-                          paymentMethod: 'cash',
-                        );
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _idController,
+                            textInputAction: TextInputAction.search,
+                            onSubmitted: (v) =>
+                                controller.fetchOrderById(v.trim()),
+                            decoration: const InputDecoration(
+                              labelText: 'ID del pedido',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            controller.fetchOrderById(
+                              _idController.text.trim(),
+                            );
+                          },
+                          child: const Text('Buscar'),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // navegación al escáner
+                        },
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Escanear QR'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // CONTENIDO segun estado (sin Expanded adentro)
+                    switch (state) {
+                      OrderInitial() => const Center(
+                        child: Text('Esperando ID o escaneo de código QR...'),
+                      ),
+                      OrderLoading() => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      OrderError(:final message) => Center(
+                        child: Text(message),
+                      ),
+                      OrderLoaded(:final order) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize
+                            .min, // 👈 importante para no pedir altura infinita
+                        children: [
+                          OrderDetail(order: order), // sin Expanded
+                          const SizedBox(height: 12),
+                          OrderActions(
+                            onCancel: () => controller.cancelOrder(order.id),
+                            onMarkAsPaid: () => controller.markAsPaid(
+                              orderId: order.id,
+                              paymentMethod: 'cash',
+                            ),
+                          ),
+                        ],
+                      ),
+                    },
                   ],
                 ),
-              },
-            ),
-          ],
+              ),
+            );
+          },
         ),
       ),
     );

@@ -16,6 +16,7 @@ class OrderDetail extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'Pedido: ${order.orderNumber}',
@@ -31,21 +32,23 @@ class OrderDetail extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              itemCount: order.items.length,
-              itemBuilder: (_, index) {
-                final item = order.items[index];
-                return ListTile(
-                  title: Text(item.productName),
-                  subtitle: Text('${item.quantity} x \$${item.unitPrice}'),
-                  trailing: Text('\$${item.subtotal}'),
-                );
-              },
-            ),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: order.items.length,
+            itemBuilder: (_, index) {
+              final item = order.items[index];
+              return ListTile(
+                dense: true,
+                title: Text(item.productName),
+                subtitle: Text('${item.quantity} x \$${item.unitPrice}'),
+                trailing: Text('\$${item.subtotal}'),
+              );
+            },
+            separatorBuilder: (_, __) => const Divider(height: 8),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
         ],
       ),
     );
