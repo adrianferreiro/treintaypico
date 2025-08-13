@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,11 +7,12 @@ import 'package:treintaypico/config/routes/router.dart';
 import 'package:treintaypico/core/localization/strings.dart';
 
 import 'package:treintaypico/core/providers/storage_providers.dart';
+import 'package:treintaypico/firebase_options.dart';
 import 'package:treintaypico/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Cargamos SharedPreferences una sola vez
   final sharedPrefs = await SharedPreferences.getInstance();
