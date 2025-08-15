@@ -29,33 +29,31 @@ class _PrintingScreenState extends ConsumerState<PrintingScreen> {
       final controller = ref.read(printingControllerProvider.notifier);
       controller.scan(NoParams());
     });
-
-    // Escucha el resultado de impresión para mostrar SnackBars
-    ref.listen(printActionProvider, (prev, next) {
-      next.when(
-        data: (_) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Ticket enviado a la impresora')),
-            );
-          }
-        },
-        loading: () {},
-        error: (err, __) {
-          final msg = err.toString();
-          if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Error al imprimir: $msg')));
-          }
-        },
-      );
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(printingControllerProvider);
+
+    // ✅ Escucha VÁLIDA: ref.listen dentro de build
+    ref.listen(printActionProvider, (prev, next) {
+      next.when(
+        data: (_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ticket enviado a la impresora')),
+          );
+        },
+        loading: () {},
+        error: (err, __) {
+          if (!mounted) return;
+          final msg = err.toString();
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error al imprimir: $msg')));
+        },
+      );
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -98,11 +96,11 @@ class _PrintingScreenState extends ConsumerState<PrintingScreen> {
           'Desconectado. Vuelve a conectar o reescanear.',
         ),
       },
-
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          child: PrintTestButton(), // Botón para imprimir ticket de prueba
+          child:
+              const PrintTestButton(), // Botón para imprimir ticket de prueba
         ),
       ),
     );
@@ -174,7 +172,6 @@ class _ConnectedView extends ConsumerWidget {
             label: const Text('Desconectar'),
           ),
           const SizedBox(height: 24),
-          // Botón de prueba abajo (en el bottomNavigationBar de la pantalla)
         ],
       ),
     );
