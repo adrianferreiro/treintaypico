@@ -43,6 +43,8 @@ dependencies:
   firebase_core: ^4.0.0
   firebase_database: ^12.0.0
   cloud_firestore: ^6.0.0
+  print_bluetooth_thermal: ^1.1.6
+  animate_do: ^4.2.0
 
 dev_dependencies:
   flutter_test:

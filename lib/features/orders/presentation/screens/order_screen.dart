@@ -47,10 +47,14 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                       children: [
                         Expanded(
                           child: TextField(
-                            controller: _idController,
                             textInputAction: TextInputAction.search,
-                            onSubmitted: (v) =>
-                                controller.fetchOrderById(v.trim()),
+                            onSubmitted: (_) {
+                              FocusScope.of(
+                                context,
+                              ).unfocus(); // opcional: cerrar teclado
+                              controller.fetchOrderById(_idController.text);
+                            },
+                            controller: _idController,
                             decoration: const InputDecoration(
                               labelText: 'ID del pedido',
                               border: OutlineInputBorder(),
