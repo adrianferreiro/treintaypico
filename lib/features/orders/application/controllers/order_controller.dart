@@ -36,12 +36,17 @@ class OrderController extends StateNotifier<OrderState> {
     required String orderId,
     required String paymentMethod,
   }) async {
+    state = OrderLoading();
     final result = await markOrderAsPaidUseCase(
       MarkOrderAsPaidParams(orderId: orderId, paymentMethod: paymentMethod),
     );
     result.fold(
       (failure) => state = OrderError(failure.message),
-      (_) => state = OrderInitial(), // reiniciamos estado si fue exitoso
+      (_) => state = OrderSuccess('Pago registrado correctamente'),
     );
+  }
+
+  void resetState() {
+    state = OrderInitial();
   }
 }

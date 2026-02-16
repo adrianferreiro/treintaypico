@@ -8,6 +8,7 @@ class OrderEntity {
   final String id;
   final String eventId;
   final String userId;
+  final String userName;
   final String companyId;
   final List<OrderItemEntity> items;
   final int totalAmount;
@@ -23,6 +24,7 @@ class OrderEntity {
     required this.id,
     required this.eventId,
     required this.userId,
+    required this.userName,
     required this.companyId,
     required this.items,
     required this.totalAmount,

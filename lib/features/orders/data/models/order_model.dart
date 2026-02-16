@@ -4,6 +4,7 @@ class OrderModel {
   final String id;
   final String eventId;
   final String userId;
+  final String userName;
   final String companyId;
   final List<OrderItemModel> items;
   final int totalAmount;
@@ -19,6 +20,7 @@ class OrderModel {
     required this.id,
     required this.eventId,
     required this.userId,
+    required this.userName,
     required this.companyId,
     required this.items,
     required this.totalAmount,
@@ -36,6 +38,7 @@ class OrderModel {
       id: json['id'],
       eventId: json['event_id'],
       userId: json['user_id'],
+      userName: json['user_name'] ?? 'Cliente',
       companyId: json['company_id'],
       items: (json['items'] as List<dynamic>)
           .map((e) => OrderItemModel.fromJson(e))
