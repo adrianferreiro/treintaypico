@@ -11,6 +11,11 @@ final class OrderLoaded extends OrderState {
   OrderLoaded(this.order);
 }
 
+final class OrderSuccess extends OrderState {
+  final String message;
+  OrderSuccess(this.message);
+}
+
 final class OrderError extends OrderState {
   final String message;
   OrderError(this.message);

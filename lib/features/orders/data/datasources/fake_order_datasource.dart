@@ -14,6 +14,7 @@ class FakeOrderDatasource implements OrderDatasource {
       id: id,
       eventId: 'event_789',
       userId: 'user_123',
+      userName: 'Cliente Test',
       companyId: 'company_456',
       items: [
         OrderItemModel(

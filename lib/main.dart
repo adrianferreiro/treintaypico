@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -9,6 +10,7 @@ import 'theme/app_theme.dart'; // getDarkTheme(), getLightTheme()
 void main() async {
   // Esto es necesario antes de llamar a Firebase.initializeApp
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   // Inicializa Firebase con la config generada por FlutterFire
   await Firebase.initializeApp(

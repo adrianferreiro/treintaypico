@@ -7,6 +7,15 @@ class OrderDetail extends StatelessWidget {
 
   const OrderDetail({super.key, required this.order});
 
+  String _formatPrice(int amount) {
+    final text = amount.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < text.length; i++) {
+      if (i > 0 && (text.length - i) % 3 == 0) buffer.write('.');
+      buffer.write(text[i]);
+    }
+    return '\$$buffer';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +53,7 @@ class OrderDetail extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Cliente: ${order.userId}',
+                      'Cliente: ${order.userName}',
                       style: TextStyle(
                         color: AppColors.textLight.withOpacity(0.7),
                         fontSize: 14,
@@ -143,7 +152,7 @@ class OrderDetail extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '\$${item.unitPrice.toStringAsFixed(2)} c/u',
+                              '${_formatPrice(item.unitPrice)} c/u',
                               style: TextStyle(
                                 color: AppColors.textLight.withOpacity(0.6),
                                 fontSize: 13,
@@ -155,7 +164,7 @@ class OrderDetail extends StatelessWidget {
 
                       // Price
                       Text(
-                        '\$${item.subtotal.toStringAsFixed(2)}',
+                        _formatPrice(item.subtotal),
                         style: const TextStyle(
                           color: AppColors.textLight,
                           fontSize: 16,
@@ -181,7 +190,27 @@ class OrderDetail extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildSummaryRow('Total', order.totalAmount.toDouble(), true),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total',
+                      style: TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      _formatPrice(order.items.fold(0, (sum, item) => sum + item.subtotal)),
+                      style: const TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 4),
                 Text(
                   '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
@@ -195,30 +224,6 @@ class OrderDetail extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, double amount, bool isTotal) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.textLight,
-            fontSize: isTotal ? 18 : 14,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        Text(
-          'US\$${amount.toStringAsFixed(2)}',
-          style: TextStyle(
-            color: AppColors.textLight,
-            fontSize: isTotal ? 20 : 14,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ],
     );
   }
 

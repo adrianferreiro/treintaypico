@@ -21,6 +21,7 @@ extension OrderMapper on OrderModel {
       id: id,
       eventId: eventId,
       userId: userId,
+      userName: userName,
       companyId: companyId,
       items: items.map((e) => e.toEntity()).toList(),
       totalAmount: totalAmount,
