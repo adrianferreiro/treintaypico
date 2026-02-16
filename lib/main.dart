@@ -1,39 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:sizer/sizer.dart';
-import 'package:treintaypico/config/routes/router.dart';
-import 'package:treintaypico/core/localization/strings.dart';
-
-import 'package:treintaypico/core/providers/storage_providers.dart';
-import 'package:treintaypico/theme/app_theme.dart';
+import 'config/routes/router.dart';
+import 'theme/app_theme.dart'; // getDarkTheme(), getLightTheme()
 
 void main() async {
+  // Esto es necesario antes de llamar a Firebase.initializeApp
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Cargamos SharedPreferences una sola vez
-  final sharedPrefs = await SharedPreferences.getInstance();
+  // Inicializa Firebase con la config generada por FlutterFire
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
-    ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Sizer(
-      builder: (_, __, ___) => MaterialApp.router(
-        title: Strings.appName,
-        routerConfig: AppRouter.routes,
-        debugShowCheckedModeBanner: false,
-        theme: getDarkTheme(),
-      ),
-    );
+class MyApp extends StatelessWidget {                                                                                                                                                                                                    
+    const MyApp({super.key});
+                                                                                                                                                                                                                                           
+    @override                                                                                                                                                                                                                              
+    Widget build(BuildContext context) {
+      return Sizer(
+        builder: (context, orientation, deviceType) {
+          return MaterialApp.router(
+            title: 'EVNTS POS',
+            debugShowCheckedModeBanner: false,
+            theme: getDarkTheme(),
+            routerConfig: AppRouter.routes,
+          );
+        },
+      );
+    }
   }
-}
