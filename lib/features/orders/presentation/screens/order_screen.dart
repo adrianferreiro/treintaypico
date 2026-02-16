@@ -5,6 +5,8 @@ import 'package:treintaypico/features/orders/application/providers/order_provide
 import 'package:treintaypico/features/orders/application/states/order_state.dart';
 import 'package:treintaypico/features/orders/presentation/widgets/order_action.dart';
 import 'package:treintaypico/features/orders/presentation/widgets/order_detail.dart';
+import 'package:go_router/go_router.dart';                                                                                                                                                                                               
+import 'package:treintaypico/features/auth/application/providers/auth_providers.dart';
 
 class OrderScreen extends ConsumerStatefulWidget {
   static const name = 'order-screen';
@@ -32,6 +34,15 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
           style: TextStyle(color: AppColors.textLight),
         ),
         iconTheme: const IconThemeData(color: AppColors.textLight),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.textLight),
+            onPressed: () {
+              ref.read(authControllerProvider.notifier).logout();
+              context.go('/login');
+            },
+          ),
+        ],
       ),
       body: Row(
         children: [
