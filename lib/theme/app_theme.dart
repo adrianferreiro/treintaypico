@@ -35,38 +35,38 @@ ThemeData getLightTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.pink[50],
+      fillColor: Colors.grey[100],
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: primaryColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.pinkAccent),
+        borderSide: BorderSide(color: primaryColor),
       ),
     ),
-    buttonTheme: const ButtonThemeData(
-      buttonColor: Colors.black, // Button background color
+    buttonTheme: ButtonThemeData(
+      buttonColor: primaryColor, // Button background color
       textTheme: ButtonTextTheme.primary,
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
       menuStyle: MenuStyle(
         elevation: const WidgetStatePropertyAll(5),
-        backgroundColor: WidgetStatePropertyAll(Colors.pink[100]),
+        backgroundColor: WidgetStatePropertyAll(Colors.grey[100]),
         alignment: AlignmentDirectional.bottomStart.add(
           const AlignmentDirectional(0, 0.2),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.pink[50],
+        fillColor: Colors.grey[50],
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.pinkAccent),
+          borderSide: BorderSide(color: primaryColor),
         ),
       ),
     ),
@@ -81,9 +81,13 @@ ThemeData getDarkTheme() {
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
-    primaryColor: Colors.pink,
-    scaffoldBackgroundColor: Colors.grey[900],
-    appBarTheme: const AppBarTheme(centerTitle: true),
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: const Color(0xFF1E1E1E),
+    appBarTheme: const AppBarTheme(
+      centerTitle: false,
+      backgroundColor: Color(0xFF1E1E1E),
+      foregroundColor: Color(0xFFFFFFFF),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -107,15 +111,15 @@ ThemeData getDarkTheme() {
       fillColor: Colors.grey[800],
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.pink),
+        borderSide: BorderSide(color: primaryColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.pinkAccent),
+        borderSide: BorderSide(color: primaryColor.withValues(alpha: 0.7)),
       ),
     ),
-    buttonTheme: const ButtonThemeData(
-      buttonColor: Colors.pink, // Button background color
+    buttonTheme: ButtonThemeData(
+      buttonColor: primaryColor, // Button background color
       textTheme: ButtonTextTheme.primary,
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
@@ -135,7 +139,7 @@ ThemeData getDarkTheme() {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.pinkAccent),
+          borderSide: BorderSide(color: primaryColor),
         ),
       ),
     ),
