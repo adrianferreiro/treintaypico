@@ -7,6 +7,7 @@ import 'package:treintaypico/features/orders/domain/entities/order_entity.dart';
 import 'package:treintaypico/features/orders/presentation/widgets/order_detail.dart';
 import 'package:go_router/go_router.dart';
 import 'package:treintaypico/features/auth/application/providers/auth_providers.dart';
+import 'package:treintaypico/features/orders/presentation/screens/qr_scanner_screen.dart';
 
 class OrderScreen extends ConsumerStatefulWidget {
   static const name = 'order-screen';
@@ -167,8 +168,15 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.qr_code_scanner, color: AppColors.textSecondary, size: 24),
-              onPressed: () {
-                // pendiente: navegación al escáner
+              onPressed: () async {
+                final result = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const QrScannerScreen()), 
+                );
+                if(result != null){
+                   _idController.text = result;
+                    controller.fetchOrderById(result);
+                }
               },
             ),
           ],
