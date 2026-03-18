@@ -8,6 +8,7 @@ import 'package:treintaypico/features/orders/presentation/widgets/order_detail.d
 import 'package:go_router/go_router.dart';
 import 'package:treintaypico/features/auth/application/providers/auth_providers.dart';
 import 'package:treintaypico/features/orders/presentation/screens/qr_scanner_screen.dart';
+import 'package:treintaypico/features/orders/data/services/ticket_printer_service.dart';
 
 class OrderScreen extends ConsumerStatefulWidget {
   static const name = 'order-screen';
@@ -21,6 +22,7 @@ class OrderScreen extends ConsumerStatefulWidget {
 class _OrderScreenState extends ConsumerState<OrderScreen> {
   final TextEditingController _idController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  OrderEntity? _lastOrder;
 
   @override
   void dispose() {
@@ -71,9 +73,19 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
     final controller = ref.read(orderControllerProvider.notifier);
 
     // Auto-reset después de Success
-    ref.listen<OrderState>(orderControllerProvider, (previous, next) {
+    ref.listen<OrderState>(orderControllerProvider, (previous, next) async {
       if (next is OrderSuccess) {
         _idController.clear();
+        //printer ticket 
+        if (_lastOrder != null) {
+          final printed = await TicketPrinterService().printTicket(_lastOrder!);
+          if (!printed && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No se pudo imprimir el ticket')),
+            );
+          }
+          _lastOrder = null;
+      }
         Future.delayed(const Duration(seconds: 5), () {
           if (mounted) {
             controller.resetState();
@@ -174,8 +186,9 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                   MaterialPageRoute(builder: (_) => const QrScannerScreen()), 
                 );
                 if(result != null){
-                   _idController.text = result;
-                    controller.fetchOrderById(result);
+                  final scannedValue = result.trim();
+                  _idController.text = scannedValue;
+                  controller.fetchOrderById(scannedValue);
                 }
               },
             ),
@@ -425,6 +438,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             height: 68,
             child: ElevatedButton(
               onPressed: () {
+                _lastOrder = order;
                 controller.markAsPaid(
                   orderId: order.id,
                   paymentMethod: 'cash',
