@@ -80,8 +80,18 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
         if (_lastOrder != null) {
           final printed = await TicketPrinterService().printTicket(_lastOrder!);
           if (!printed && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No se pudo imprimir el ticket')),
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Error de impresora'),
+                content: const Text('La impresora no esta disponible, revise el papel'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Aceptar'),
+                  ),
+                ],
+              ),
             );
           }
           _lastOrder = null;

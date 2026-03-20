@@ -18,6 +18,10 @@ class TicketPrinterService {
   /// Imprime el ticket del pedido. Retorna true si fue exitoso.
   Future<bool> printTicket(OrderEntity order) async {
       try {
+        // 0. Verificar disponibilidad de papel
+        final paperStatus = await _printer.paperOut();
+        if (paperStatus != 0) return false;
+
         // 1. Header: "EVNTS POS" — center, bold, size 36
         await _printer.printText('EVNTS POS', textFormat: NyxTextFormat(
           textSize: 36,
@@ -36,10 +40,7 @@ class TicketPrinterService {
           align: NyxAlign.center,
         ));
 
-        // 4. QR Code del order number
-        await _printer.printQrCode(order.orderNumber, width: 250, height: 250);
-
-        // 5. Info cliente — center, size 16/14
+        // 4. Info cliente — center, size 16/14
         await _printer.printText('Cliente: ${order.userName}', textFormat: NyxTextFormat(
           textSize: 16,
           align: NyxAlign.center,
@@ -66,19 +67,21 @@ class TicketPrinterService {
 
         // 9. Título items — center, bold
         await _printer.printText('Detalle del Pedido', textFormat: NyxTextFormat(
-          textSize: 16,
+          textSize: 23,
           align: NyxAlign.center,
           style: NyxFontStyle.bold,
         ));
 
         // 10. Loop items: nombre + precio (alineado a _lineWidth)
         for (final item in order.items) {
-          final name = item.productName;
+          final qty = '${item.quantity}  ';
+          final name = '$qty${item.productName}';
           final price = '\$${item.subtotal.toStringAsFixed(3)}';
           final padding = _lineWidth - name.length - price.length;
           final spaces = padding > 0 ? ' ' * padding : ' ';
           await _printer.printText('$name$spaces$price', textFormat: NyxTextFormat(
-            textSize: 16,
+            textSize: 20,
+            style: NyxFontStyle.bold,
           ));
         }
 
@@ -95,7 +98,7 @@ class TicketPrinterService {
 
         // 13. Total amount — center, bold, big
         await _printer.printText('\$${order.totalAmount.toStringAsFixed(3)}', textFormat: NyxTextFormat(
-          textSize: 38,
+          textSize: 34,
           align: NyxAlign.center,
           style: NyxFontStyle.bold,
         ));
