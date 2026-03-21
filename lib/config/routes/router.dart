@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:treintaypico/features/auth/presentation/screens/login_screen.dart';
 import 'package:treintaypico/features/orders/presentation/screens/order_screen.dart';
+import 'package:treintaypico/features/admin/presentation/screens/admin_screen.dart';
 
 class AppRouter {
   static final GoRouter _routes = GoRouter(
@@ -16,6 +17,11 @@ class AppRouter {
         name: OrderScreen.name,
         builder: (_, __) => const OrderScreen(),
       ),
+      GoRoute(                                                                                                                                                                              
+        path: AdminScreen.path,                                                                                                                                                             
+        name: AdminScreen.name,                                                                                                                                                             
+        builder: (_, __) => const AdminScreen(),                                                                                                                                          
+      )
     ],
   );
 
