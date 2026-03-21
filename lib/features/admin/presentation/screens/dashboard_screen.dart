@@ -9,7 +9,9 @@ import 'package:treintaypico/features/auth/application/providers/auth_providers.
 import 'package:treintaypico/features/auth/application/states/auth_state.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  const DashboardScreen({super.key});
+  final bool isPortrait;
+
+  const DashboardScreen({super.key, this.isPortrait = false});
 
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
@@ -40,7 +42,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Container(
       color: AppColors.darkBackground,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(widget.isPortrait ? 16 : 24),
       child: switch (state) {
         DashboardInitial() => const Center(
             child: Text(
@@ -72,45 +74,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.attach_money,
-                      iconColor: AppColors.badgePaid,
-                      label: 'Total Vendido',
-                      value: '\$${_formatNumber(totalSold)}',
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.shopping_cart_outlined,
-                      iconColor: AppColors.accentLight,
-                      label: 'Pedidos Procesados',
-                      value: processedOrders.toString(),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.timer_outlined,
-                      iconColor: AppColors.badgePending,
-                      label: 'Pedidos Pendientes',
-                      value: pendingOrders.toString(),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.monitor,
-                      iconColor: AppColors.accent,
-                      label: 'Cajas Activas',
-                      value: '0',
-                    ),
-                  ),
-                ],
-              ),
+              if (widget.isPortrait)
+                _buildPortraitStats(totalSold, processedOrders, pendingOrders)
+              else
+                _buildLandscapeStats(totalSold, processedOrders, pendingOrders),
             ],
           ),
         DashboardError(:final message) => Center(
@@ -130,6 +97,98 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
       },
+    );
+  }
+
+  Widget _buildLandscapeStats(int totalSold, int processedOrders, int pendingOrders) {
+    return Row(
+      children: [
+        Expanded(
+          child: StatCard(
+            icon: Icons.attach_money,
+            iconColor: AppColors.badgePaid,
+            label: 'Total Vendido',
+            value: '\$${_formatNumber(totalSold)}',
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: StatCard(
+            icon: Icons.shopping_cart_outlined,
+            iconColor: AppColors.accentLight,
+            label: 'Pedidos Procesados',
+            value: processedOrders.toString(),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: StatCard(
+            icon: Icons.timer_outlined,
+            iconColor: AppColors.badgePending,
+            label: 'Pedidos Pendientes',
+            value: pendingOrders.toString(),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: StatCard(
+            icon: Icons.monitor,
+            iconColor: AppColors.accent,
+            label: 'Terminales Activas',
+            value: '1',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPortraitStats(int totalSold, int processedOrders, int pendingOrders) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: StatCard(
+                icon: Icons.attach_money,
+                iconColor: AppColors.badgePaid,
+                label: 'Total Vendido',
+                value: '\$${_formatNumber(totalSold)}',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatCard(
+                icon: Icons.shopping_cart_outlined,
+                iconColor: AppColors.accentLight,
+                label: 'Pedidos Procesados',
+                value: processedOrders.toString(),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: StatCard(
+                icon: Icons.timer_outlined,
+                iconColor: AppColors.badgePending,
+                label: 'Pedidos Pendientes',
+                value: pendingOrders.toString(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatCard(
+                icon: Icons.monitor,
+                iconColor: AppColors.accent,
+                label: 'Terminales Activas',
+                value: '1',
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

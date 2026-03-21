@@ -21,6 +21,21 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  Future<bool> validateSession() async {
+    if (state is! AuthAuthenticated) return false;
+    final user = (state as AuthAuthenticated).user;
+    try {
+      final isActive = await _datasource.checkUserActive(user.email);
+      if (!isActive) {
+        await logout();
+        return false;
+      }
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<void> logout() async {
     await _datasource.logout();
     state = AuthInitial();

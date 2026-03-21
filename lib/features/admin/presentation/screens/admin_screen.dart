@@ -23,27 +23,34 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
-      body: Row(
-        children: [
-          AdminSidebar(
-            selectedIndex: _selectedIndex,
-            onItemSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-          ),
-          Expanded(
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: const [
-                DashboardScreen(),
-                ProductosScreen(),
-                EventosScreen(),
-              ],
-            ),
-          ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isPortrait = constraints.maxWidth < 900;
+
+          return Row(
+            children: [
+              AdminSidebar(
+                selectedIndex: _selectedIndex,
+                isCollapsed: isPortrait,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+              ),
+              Expanded(
+                child: IndexedStack(
+                  index: _selectedIndex,
+                  children: [
+                    DashboardScreen(isPortrait: isPortrait),
+                    ProductosScreen(isPortrait: isPortrait),
+                    EventosScreen(isPortrait: isPortrait),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

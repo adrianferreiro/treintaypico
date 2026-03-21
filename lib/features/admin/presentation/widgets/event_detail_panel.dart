@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:treintaypico/core/styles/app_colors.dart';
 import 'package:treintaypico/features/auth/application/providers/auth_providers.dart';
 import 'package:treintaypico/features/auth/application/states/auth_state.dart';
@@ -11,11 +12,13 @@ import 'package:treintaypico/features/events/domain/entities/event_entity.dart';
 class EventDetailPanel extends ConsumerStatefulWidget {
   final EventEntity event;
   final VoidCallback onEventUpdated;
+  final bool isPortrait;
 
   const EventDetailPanel({
     super.key,
     required this.event,
     required this.onEventUpdated,
+    this.isPortrait = false,
   });
 
   @override
@@ -40,7 +43,39 @@ class _EventDetailPanelState extends ConsumerState<EventDetailPanel> {
     }
   }
 
-  void _toggleCategory(String categoryId, bool enable) {
+  Future<bool> _checkSuspended() async {
+    final isActive = await ref.read(authControllerProvider.notifier).validateSession();
+    if (!isActive && mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          backgroundColor: AppColors.cardDark,
+          title: const Text(
+            'Cuenta suspendida',
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
+          content: const Text(
+            'Tu cuenta se encuentra suspendida',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK', style: TextStyle(color: AppColors.accent)),
+            ),
+          ],
+        ),
+      );
+      if (mounted) context.go('/login');
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _toggleCategory(String categoryId, bool enable) async {
+    if (await _checkSuspended()) return;
+
     final currentCategories = List<String>.from(widget.event.categories);
     if (enable) {
       if (!currentCategories.contains(categoryId)) {
@@ -59,9 +94,10 @@ class _EventDetailPanelState extends ConsumerState<EventDetailPanel> {
   @override
   Widget build(BuildContext context) {
     final categoryState = ref.watch(categoryControllerProvider);
+    final padding = widget.isPortrait ? 16.0 : 24.0;
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -71,16 +107,17 @@ class _EventDetailPanelState extends ConsumerState<EventDetailPanel> {
               Expanded(
                 child: Text(
                   widget.event.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 22,
+                    fontSize: widget.isPortrait ? 18 : 22,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  if (await _checkSuspended()) return;
                   ref.read(eventControllerProvider.notifier).toggleEventAvailable(
                         id: widget.event.id,
                         isAvailable: !widget.event.isAvailable,
@@ -120,35 +157,31 @@ class _EventDetailPanelState extends ConsumerState<EventDetailPanel> {
           const SizedBox(height: 20),
 
           // Info Row
-          Row(
-            children: [
-              _InfoBlock(label: 'Fecha', value: _formatDate(widget.event.date)),
-              const SizedBox(width: 24),
-              _InfoBlock(label: 'Lugar', value: widget.event.venueName ?? '-'),
-              const SizedBox(width: 24),
-              _InfoBlock(
-                label: 'Estado',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: widget.event.isAvailable
-                        ? const Color(0x334CAF50)
-                        : const Color(0x339E9E9E),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    widget.event.isAvailable ? 'Activo' : 'Inactivo',
-                    style: TextStyle(
-                      color: widget.event.isAvailable ? AppColors.badgePaid : AppColors.textSecondary,
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+          widget.isPortrait
+              ? Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    _InfoBlock(label: 'Fecha', value: _formatDate(widget.event.date)),
+                    _InfoBlock(label: 'Lugar', value: widget.event.venueName ?? '-'),
+                    _InfoBlock(
+                      label: 'Estado',
+                      child: _buildStatusBadge(),
                     ),
-                  ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _InfoBlock(label: 'Fecha', value: _formatDate(widget.event.date)),
+                    const SizedBox(width: 24),
+                    _InfoBlock(label: 'Lugar', value: widget.event.venueName ?? '-'),
+                    const SizedBox(width: 24),
+                    _InfoBlock(
+                      label: 'Estado',
+                      child: _buildStatusBadge(),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
           const SizedBox(height: 24),
 
           // Categories Section
@@ -167,6 +200,27 @@ class _EventDetailPanelState extends ConsumerState<EventDetailPanel> {
             child: _buildCategoryList(categoryState),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      decoration: BoxDecoration(
+        color: widget.event.isAvailable
+            ? const Color(0x334CAF50)
+            : const Color(0x339E9E9E),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        widget.event.isAvailable ? 'Activo' : 'Inactivo',
+        style: TextStyle(
+          color: widget.event.isAvailable ? AppColors.badgePaid : AppColors.textSecondary,
+          fontFamily: 'Inter',
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
