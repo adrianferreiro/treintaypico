@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:treintaypico/core/styles/app_colors.dart';
 import 'package:treintaypico/features/auth/application/providers/auth_providers.dart';
 import 'package:treintaypico/features/auth/application/states/auth_state.dart';
@@ -88,6 +89,35 @@ class _EventFormDialogState extends ConsumerState<EventFormDialog> {
 
     final authState = ref.read(authControllerProvider);
     if (authState is! AuthAuthenticated) return;
+
+    // Validar que la cuenta no esté suspendida
+    final isActive = await ref.read(authControllerProvider.notifier).validateSession();
+    if (!isActive && mounted) {
+      Navigator.of(context).pop();
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          backgroundColor: AppColors.cardDark,
+          title: const Text(
+            'Cuenta suspendida',
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
+          content: const Text(
+            'Tu cuenta se encuentra suspendida',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK', style: TextStyle(color: AppColors.accent)),
+            ),
+          ],
+        ),
+      );
+      if (mounted) context.go('/login');
+      return;
+    }
 
     setState(() => _isLoading = true);
 

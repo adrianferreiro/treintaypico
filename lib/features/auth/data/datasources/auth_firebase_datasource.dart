@@ -45,6 +45,18 @@ class AuthFirebaseDatasource {
     );
   }
 
+  Future<bool> checkUserActive(String email) async {
+    final userDoc = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email.toLowerCase())
+        .get();
+
+    if (userDoc.docs.isEmpty) return false;
+
+    final data = userDoc.docs.first.data();
+    return data['isActive'] ?? true;
+  }
+
   Future<void> logout() async {
     await _auth.signOut();
   }

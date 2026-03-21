@@ -11,7 +11,9 @@ import 'package:treintaypico/features/events/application/states/event_state.dart
 import 'package:treintaypico/features/events/domain/entities/event_entity.dart';
 
 class EventosScreen extends ConsumerStatefulWidget {
-  const EventosScreen({super.key});
+  final bool isPortrait;
+
+  const EventosScreen({super.key, this.isPortrait = false});
 
   @override
   ConsumerState<EventosScreen> createState() => _EventosScreenState();
@@ -62,9 +64,16 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
       }
     }
 
+    if (widget.isPortrait) {
+      return _buildPortraitLayout(eventState);
+    }
+
+    return _buildLandscapeLayout(eventState);
+  }
+
+  Widget _buildLandscapeLayout(EventState eventState) {
     return Row(
       children: [
-        // Events List (left)
         EventListPanel(
           eventState: eventState,
           selectedEvent: _selectedEvent,
@@ -80,8 +89,6 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
             );
           },
         ),
-
-        // Event Detail (right)
         Expanded(
           child: Container(
             color: AppColors.darkBackground,
@@ -99,6 +106,88 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPortraitLayout(EventState eventState) {
+    return Container(
+      color: AppColors.darkBackground,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Header
+          Row(
+            children: [
+              const Text(
+                'Eventos',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontFamily: 'Inter',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => EventFormDialog(onSave: _loadEvents),
+                  );
+                },
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Event List (compact, scrollable)
+          SizedBox(
+            height: 200,
+            child: EventListPanel(
+              eventState: eventState,
+              selectedEvent: _selectedEvent,
+              isPortrait: true,
+              onEventSelected: (event) {
+                setState(() {
+                  _selectedEvent = event;
+                });
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Event Detail
+          Expanded(
+            child: _selectedEvent != null
+                ? Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.cardDark,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: EventDetailPanel(
+                      event: _selectedEvent!,
+                      onEventUpdated: _loadEvents,
+                      isPortrait: true,
+                    ),
+                  )
+                : const Center(
+                    child: Text(
+                      'Selecciona un evento',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

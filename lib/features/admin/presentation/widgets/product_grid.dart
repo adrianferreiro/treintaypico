@@ -9,8 +9,9 @@ import 'package:treintaypico/features/products/domain/entities/product_entity.da
 
 class ProductGrid extends ConsumerStatefulWidget {
   final CategoryEntity category;
+  final bool isPortrait;
 
-  const ProductGrid({super.key, required this.category});
+  const ProductGrid({super.key, required this.category, this.isPortrait = false});
 
   @override
   ConsumerState<ProductGrid> createState() => _ProductGridState();
@@ -42,7 +43,7 @@ class _ProductGridState extends ConsumerState<ProductGrid> {
     final state = ref.watch(productControllerProvider);
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(widget.isPortrait ? 0 : 20),
       child: Column(
         children: [
           // Header
@@ -58,30 +59,32 @@ class _ProductGridState extends ConsumerState<ProductGrid> {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
-                child: Container(
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgInput,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.search, color: AppColors.textMuted, size: 18),
-                      SizedBox(width: 8),
-                      Text(
-                        'Buscar productos...',
-                        style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontFamily: 'Inter',
-                          fontSize: 14,
+              if (!widget.isPortrait)
+                Expanded(
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgInput,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.search, color: AppColors.textMuted, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          'Buscar productos...',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              if (widget.isPortrait) const Spacer(),
               const SizedBox(width: 16),
               GestureDetector(
                 onTap: () => _showCreateDialog(context),
@@ -92,20 +95,22 @@ class _ProductGridState extends ConsumerState<ProductGrid> {
                     color: AppColors.accent,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add, color: Colors.white, size: 16),
-                      SizedBox(width: 8),
-                      Text(
-                        'Nuevo Producto',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      const Icon(Icons.add, color: Colors.white, size: 16),
+                      if (!widget.isPortrait) ...[
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Nuevo Producto',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -128,10 +133,10 @@ class _ProductGridState extends ConsumerState<ProductGrid> {
                       ),
                     )
                   : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: widget.isPortrait ? 3 : 3,
+                        crossAxisSpacing: widget.isPortrait ? 12 : 16,
+                        mainAxisSpacing: widget.isPortrait ? 12 : 16,
                         childAspectRatio: 0.85,
                       ),
                       itemCount: products.length,

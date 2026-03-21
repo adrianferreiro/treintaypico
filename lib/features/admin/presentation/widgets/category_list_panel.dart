@@ -23,7 +23,7 @@ class CategoryListPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      width: 360,
+      width: 320,
       color: AppColors.darkBackground,
       padding: const EdgeInsets.all(20),
       child: Column(

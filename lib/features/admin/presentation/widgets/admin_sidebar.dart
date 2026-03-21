@@ -7,63 +7,84 @@ import 'package:treintaypico/features/auth/application/providers/auth_providers.
 class AdminSidebar extends ConsumerWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
+  final bool isCollapsed;
 
   const AdminSidebar({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
+    this.isCollapsed = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final width = isCollapsed ? 60.0 : 220.0;
+
     return Container(
-      width: 250,
+      width: width,
       color: AppColors.darkBackground,
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         children: [
           // Logo Area
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    borderRadius: BorderRadius.circular(10),
+            padding: EdgeInsets.fromLTRB(isCollapsed ? 0 : 20, 0, isCollapsed ? 0 : 20, 24),
+            child: isCollapsed
+                ? Center(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.accent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.monitor,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  )
+                : Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.accent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.monitor,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'EVNTS POS',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontFamily: 'Inter',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: const Icon(
-                    Icons.monitor,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'EVNTS POS',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontFamily: 'Inter',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
           ),
 
           // Nav Items
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 8 : 8),
               child: Column(
                 children: [
                   _NavItem(
                     icon: Icons.dashboard_outlined,
                     label: 'Dashboard',
                     isSelected: selectedIndex == 0,
+                    isCollapsed: isCollapsed,
                     onTap: () => onItemSelected(0),
                   ),
                   const SizedBox(height: 2),
@@ -71,6 +92,7 @@ class AdminSidebar extends ConsumerWidget {
                     icon: Icons.inventory_2_outlined,
                     label: 'Productos',
                     isSelected: selectedIndex == 1,
+                    isCollapsed: isCollapsed,
                     onTap: () => onItemSelected(1),
                   ),
                   const SizedBox(height: 2),
@@ -78,6 +100,7 @@ class AdminSidebar extends ConsumerWidget {
                     icon: Icons.calendar_today_outlined,
                     label: 'Eventos',
                     isSelected: selectedIndex == 2,
+                    isCollapsed: isCollapsed,
                     onTap: () => onItemSelected(2),
                   ),
                 ],
@@ -87,7 +110,7 @@ class AdminSidebar extends ConsumerWidget {
 
           // Bottom Nav
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 8 : 8),
             child: Column(
               children: [
                 const Divider(color: AppColors.border, height: 1),
@@ -97,6 +120,7 @@ class AdminSidebar extends ConsumerWidget {
                   label: 'Cerrar Sesión',
                   isSelected: false,
                   isLogout: true,
+                  isCollapsed: isCollapsed,
                   onTap: () {
                     ref.read(authControllerProvider.notifier).logout();
                     context.go('/login');
@@ -116,6 +140,7 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final bool isLogout;
+  final bool isCollapsed;
   final VoidCallback onTap;
 
   const _NavItem({
@@ -124,6 +149,7 @@ class _NavItem extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.isLogout = false,
+    this.isCollapsed = false,
   });
 
   @override
@@ -133,6 +159,27 @@ class _NavItem extends StatelessWidget {
         : isSelected
             ? Colors.white
             : AppColors.textSecondary;
+
+    if (isCollapsed) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.accent : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Icon(icon, color: color, size: 20),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Material(
       color: Colors.transparent,

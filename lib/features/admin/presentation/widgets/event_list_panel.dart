@@ -8,6 +8,7 @@ class EventListPanel extends StatelessWidget {
   final EventEntity? selectedEvent;
   final ValueChanged<EventEntity> onEventSelected;
   final VoidCallback? onAddEvent;
+  final bool isPortrait;
 
   const EventListPanel({
     super.key,
@@ -15,10 +16,15 @@ class EventListPanel extends StatelessWidget {
     required this.selectedEvent,
     required this.onEventSelected,
     this.onAddEvent,
+    this.isPortrait = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (isPortrait) {
+      return _buildContent();
+    }
+
     return Container(
       width: 360,
       color: AppColors.darkBackground,
@@ -56,35 +62,37 @@ class EventListPanel extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Event List
-          Expanded(
-            child: switch (eventState) {
-              EventInitial() || EventLoading() => const Center(
-                  child: CircularProgressIndicator(color: AppColors.accent),
-                ),
-              EventLoaded(:final events) => ListView.separated(
-                  itemCount: events.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final event = events[index];
-                    final isSelected = selectedEvent?.id == event.id;
-                    return _EventRow(
-                      event: event,
-                      isSelected: isSelected,
-                      onTap: () => onEventSelected(event),
-                    );
-                  },
-                ),
-              EventError(:final message) => Center(
-                  child: Text(
-                    message,
-                    style: const TextStyle(color: AppColors.cancelRed),
-                  ),
-                ),
-            },
-          ),
+          Expanded(child: _buildContent()),
         ],
       ),
     );
+  }
+
+  Widget _buildContent() {
+    return switch (eventState) {
+      EventInitial() || EventLoading() => const Center(
+          child: CircularProgressIndicator(color: AppColors.accent),
+        ),
+      EventLoaded(:final events) => ListView.separated(
+          itemCount: events.length,
+          separatorBuilder: (_, __) => SizedBox(height: isPortrait ? 8 : 16),
+          itemBuilder: (context, index) {
+            final event = events[index];
+            final isSelected = selectedEvent?.id == event.id;
+            return _EventRow(
+              event: event,
+              isSelected: isSelected,
+              onTap: () => onEventSelected(event),
+            );
+          },
+        ),
+      EventError(:final message) => Center(
+          child: Text(
+            message,
+            style: const TextStyle(color: AppColors.cancelRed),
+          ),
+        ),
+    };
   }
 }
 
