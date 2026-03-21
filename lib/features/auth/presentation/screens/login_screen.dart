@@ -57,7 +57,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Redirigir segun rol
         switch (next.user.role) {
           case UserRole.admin:
-            context.go('/order'); // TODO: cambiar a /admin cuando exista
+            context.go('/admin'); // TODO: cambiar a /admin cuando exista
           case UserRole.cashier:
             context.go('/order');
           case UserRole.bartender:
