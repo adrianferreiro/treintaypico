@@ -10,9 +10,10 @@ class FirestoreEventDatasource implements EventDatasource {
     final query = await _firestore
         .collection('events')
         .where('companyId', isEqualTo: companyId)
+        .where('isAvailable', isEqualTo: true)
         .get(source != null ? GetOptions(source: source) : null);
 
-    final events = query.docs.map((doc) {
+    return query.docs.map((doc) {
       final data = doc.data();
       // Parse Firestore Timestamp for date
       final dateValue = data['date'];
@@ -21,10 +22,6 @@ class FirestoreEventDatasource implements EventDatasource {
       }
       return EventModel.fromJson(doc.id, data);
     }).toList();
-
-    // Sort client-side to avoid requiring a composite index
-    events.sort((a, b) => b.date.compareTo(a.date));
-    return events;
   }
 
   @override
@@ -66,7 +63,7 @@ class FirestoreEventDatasource implements EventDatasource {
       'date': Timestamp.fromDate(date),
       'companyId': companyId,
       'venueId': venueId,
-      'isAvailable': false,
+      'isAvailable': true,
       'productOverrides': {},
       'frontpage': frontpage,
       'logo': logo,

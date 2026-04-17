@@ -139,7 +139,6 @@ class _EventFormDialogState extends ConsumerState<EventFormDialog> {
         );
 
     if (mounted) {
-      widget.onSave();
       Navigator.of(context).pop();
     }
   }

@@ -39,6 +39,26 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
     }
   }
 
+  void _handleAddEvent() {
+    final eventState = ref.read(eventControllerProvider);
+    if (eventState is EventLoaded) {
+      final hasActiveEvent = eventState.events.any((e) => e.isAvailable);
+      if (hasActiveEvent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Antes de crear un nuevo evento, debes desactivar el activo'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+    }
+    showDialog(
+      context: context,
+      builder: (_) => EventFormDialog(onSave: _loadEvents),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final eventState = ref.watch(eventControllerProvider);
@@ -55,7 +75,14 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
     // Keep selected event in sync with state
     if (eventState is EventLoaded && _selectedEvent != null) {
       final updated = eventState.events.where((e) => e.id == _selectedEvent!.id).firstOrNull;
-      if (updated != null && updated != _selectedEvent) {
+      if (updated == null) {
+        // Event was deactivated and no longer in the list
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            _selectedEvent = eventState.events.firstOrNull;
+          });
+        });
+      } else if (updated != _selectedEvent) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           setState(() {
             _selectedEvent = updated;
@@ -82,12 +109,7 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
               _selectedEvent = event;
             });
           },
-          onAddEvent: () {
-            showDialog(
-              context: context,
-              builder: (_) => EventFormDialog(onSave: _loadEvents),
-            );
-          },
+          onAddEvent: _handleAddEvent,
         ),
         Expanded(
           child: Container(
@@ -99,7 +121,7 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
                   )
                 : const Center(
                     child: Text(
-                      'Selecciona un evento',
+                      'No hay evento activo. Crea uno nuevo.',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                   ),
@@ -129,12 +151,7 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => EventFormDialog(onSave: _loadEvents),
-                  );
-                },
+                onTap: _handleAddEvent,
                 child: Container(
                   width: 32,
                   height: 32,
@@ -181,7 +198,7 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
                   )
                 : const Center(
                     child: Text(
-                      'Selecciona un evento',
+                      'No hay evento activo. Crea uno nuevo.',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                   ),

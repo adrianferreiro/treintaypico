@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:treintaypico/features/events/application/states/event_state.dart';
 import 'package:treintaypico/features/events/application/usecases/create_event_usecase.dart';
@@ -31,8 +33,20 @@ class EventController extends StateNotifier<EventState> {
     );
     state = result.fold(
       (failure) => EventError(failure.message),
-      (events) => EventLoaded(events),
+      (events) {
+        log('EventController.loadEvents: ${events.length} eventos cargados');
+        for (final e in events) {
+          log('  -> ${e.name} | ${e.date} | id: ${e.id}');
+        }
+        return EventLoaded(events);
+      },
     );
+  }
+
+  Future<void> _reloadEvents() async {
+    if (_currentCompanyId != null) {
+      await loadEvents(_currentCompanyId!);
+    }
   }
 
   Future<void> toggleEventAvailable({
@@ -42,12 +56,14 @@ class EventController extends StateNotifier<EventState> {
     final result = await toggleEventUseCase(
       ToggleEventParams(id: id, isAvailable: isAvailable),
     );
-    result.fold(
-      (failure) => state = EventError(failure.message),
-      (_) {
-        if (_currentCompanyId != null) loadEvents(_currentCompanyId!);
-      },
-    );
+    if (result.isRight()) {
+      await _reloadEvents();
+    } else {
+      result.fold(
+        (failure) => state = EventError(failure.message),
+        (_) {},
+      );
+    }
   }
 
   Future<void> createEvent({
@@ -59,6 +75,7 @@ class EventController extends StateNotifier<EventState> {
     required String logo,
     required List<String> categories,
   }) async {
+    log('EventController.createEvent: $name | $date | companyId: $companyId');
     final result = await createEventUseCase(
       CreateEventParams(
         name: name,
@@ -70,12 +87,18 @@ class EventController extends StateNotifier<EventState> {
         categories: categories,
       ),
     );
-    result.fold(
-      (failure) => state = EventError(failure.message),
-      (_) {
-        if (_currentCompanyId != null) loadEvents(_currentCompanyId!);
-      },
-    );
+    if (result.isRight()) {
+      log('EventController.createEvent: éxito, recargando eventos...');
+      await _reloadEvents();
+    } else {
+      result.fold(
+        (failure) {
+          log('EventController.createEvent: error - ${failure.message}');
+          state = EventError(failure.message);
+        },
+        (_) {},
+      );
+    }
   }
 
   Future<void> updateEventCategories({
@@ -88,12 +111,14 @@ class EventController extends StateNotifier<EventState> {
         categories: categories,
       ),
     );
-    result.fold(
-      (failure) => state = EventError(failure.message),
-      (_) {
-        if (_currentCompanyId != null) loadEvents(_currentCompanyId!);
-      },
-    );
+    if (result.isRight()) {
+      await _reloadEvents();
+    } else {
+      result.fold(
+        (failure) => state = EventError(failure.message),
+        (_) {},
+      );
+    }
   }
 
   Future<void> updateProductOverride({
@@ -110,11 +135,13 @@ class EventController extends StateNotifier<EventState> {
         enabled: enabled,
       ),
     );
-    result.fold(
-      (failure) => state = EventError(failure.message),
-      (_) {
-        if (_currentCompanyId != null) loadEvents(_currentCompanyId!);
-      },
-    );
+    if (result.isRight()) {
+      await _reloadEvents();
+    } else {
+      result.fold(
+        (failure) => state = EventError(failure.message),
+        (_) {},
+      );
+    }
   }
 }

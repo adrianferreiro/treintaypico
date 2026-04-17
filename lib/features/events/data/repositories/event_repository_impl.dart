@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:treintaypico/core/network/errors/failures.dart';
 import 'package:treintaypico/features/events/data/datasources/event_datasource.dart';
@@ -13,7 +14,7 @@ class EventRepositoryImpl implements EventRepository {
   @override
   Future<Either<Failure, List<EventEntity>>> getEventsByCompany(String companyId) async {
     try {
-      final models = await datasource.getEventsByCompany(companyId);
+      final models = await datasource.getEventsByCompany(companyId, source: Source.server);
       return Right(models.toEntityList());
     } catch (e) {
       return Left(ApiFailure(message: 'Error al cargar eventos: $e'));
